@@ -10,6 +10,7 @@ Um aplicativo simples feito em Python, com interface gráfica e banco de dados S
 - Permite adicionar novas frases diretamente pela interface
 - As frases ficam salvas no banco de dados (`quotes.db`)
 - Interface simples e intuitiva feita com Tkinter
+- Modo Escuro
 
 ----------
 
