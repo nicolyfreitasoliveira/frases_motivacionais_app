@@ -40,7 +40,6 @@ def add_quote():
         messagebox.showinfo("Sucesso", "Frase adicionada com sucesso! 🌟")
 
 def edit_quote():
-    """Permite editar a frase atual exibida na tela."""
     global current_quote_id
     if current_quote_id is None:
         messagebox.showwarning("Aviso", "Não há frase selecionada para editar.")
@@ -56,6 +55,48 @@ def edit_quote():
         quote_label.config(text=new_text)
         messagebox.showinfo("Sucesso", "Frase atualizada com sucesso! ✏️")
 
+# 🆕 NOVO: Ver histórico completo
+def show_history():
+    """Abre uma nova janela mostrando todas as frases salvas no banco."""
+    conn = sqlite3.connect("quotes.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, text FROM quotes ORDER BY id DESC")
+    quotes = cursor.fetchall()
+    conn.close()
+
+    history_window = tk.Toplevel(root)
+    history_window.title("📜 Histórico de Frases")
+    history_window.geometry("500x400")
+    history_window.configure(bg="#f7f6f3" if not dark_mode else "#1e1e1e")
+
+    title = tk.Label(history_window, text="📜 Suas Frases Motivacionais", 
+                     font=("Arial Rounded MT Bold", 16),
+                     bg=history_window["bg"], fg="#333" if not dark_mode else "#f1f1f1")
+    title.pack(pady=10)
+
+    if not quotes:
+        msg = tk.Label(history_window, text="✨ Nenhuma frase adicionada ainda!",
+                       bg=history_window["bg"], fg="#777", font=("Arial", 12))
+        msg.pack(pady=20)
+        return
+
+    frame = tk.Frame(history_window, bg=history_window["bg"])
+    frame.pack(fill="both", expand=True)
+
+    scrollbar = tk.Scrollbar(frame)
+    scrollbar.pack(side="right", fill="y")
+
+    listbox = tk.Listbox(frame, font=("Georgia", 12), height=15, width=50, 
+                         yscrollcommand=scrollbar.set,
+                         bg="white" if not dark_mode else "#2b2b2b",
+                         fg="#333" if not dark_mode else "#f1f1f1",
+                         selectbackground="#ffcc66")
+    for i, (id, text) in enumerate(quotes, 1):
+        listbox.insert("end", f"{i}. {text}")
+    listbox.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+
+    scrollbar.config(command=listbox.yview)
+
 # ------------------------------
 # Interface
 # ------------------------------
@@ -65,13 +106,11 @@ def update_quote():
     quote_label.config(text=text)
 
 def toggle_theme():
-    """Alterna entre tema claro e escuro."""
     global dark_mode
     dark_mode = not dark_mode
     apply_theme()
 
 def apply_theme():
-    """Aplica as cores de acordo com o modo atual."""
     if dark_mode:
         colors = {
             "bg": "#1e1e1e",
@@ -97,7 +136,7 @@ def apply_theme():
     footer.config(bg=colors["bg"], fg=colors["text"])
     button_frame.config(bg=colors["bg"])
 
-    for b in [add_button, edit_button, next_button, theme_button]:
+    for b in [add_button, edit_button, next_button, theme_button, history_button]:
         b.config(bg=colors["button_bg"], fg=colors["text"], activebackground=colors["button_hover"])
 
 def on_enter(e):
@@ -112,7 +151,7 @@ def on_leave(e):
 create_db()
 root = tk.Tk()
 root.title("💫 Frases Motivacionais do Dia 💫")
-root.geometry("600x440")
+root.geometry("620x460")
 root.eval('tk::PlaceWindow . center')
 
 dark_mode = False
@@ -144,11 +183,13 @@ add_button = tk.Button(button_frame, text="➕ Adicionar", command=add_quote, fo
 edit_button = tk.Button(button_frame, text="✏️ Editar", command=edit_quote, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
 next_button = tk.Button(button_frame, text="🔄 Nova", command=update_quote, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
 theme_button = tk.Button(button_frame, text="🌙 Tema Escuro", command=toggle_theme, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
+history_button = tk.Button(button_frame, text="📜 Histórico", command=show_history, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")  # 🆕 novo botão
 
 add_button.pack(side="left", padx=8)
 edit_button.pack(side="left", padx=8)
 next_button.pack(side="left", padx=8)
 theme_button.pack(side="left", padx=8)
+history_button.pack(side="left", padx=8)
 
 footer = tk.Label(root, text="✨ Desenvolvido por Nicoly Freitas Oliveira ✨", font=("Arial", 10))
 footer.pack(side="bottom", pady=10)
