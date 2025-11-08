@@ -21,13 +21,13 @@ def create_db():
 def get_random_quote():
     conn = sqlite3.connect("quotes.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT text FROM quotes")
+    cursor.execute("SELECT id, text FROM quotes")
     quotes = cursor.fetchall()
     conn.close()
     if quotes:
-        return random.choice(quotes)[0]
+        return random.choice(quotes)
     else:
-        return "✨ Adicione uma frase motivacional para começar!"
+        return (None, "✨ Adicione uma frase motivacional para começar!")
 
 def add_quote():
     new_quote = simpledialog.askstring("Adicionar Frase", "Digite a nova frase motivacional:")
@@ -39,11 +39,30 @@ def add_quote():
         conn.close()
         messagebox.showinfo("Sucesso", "Frase adicionada com sucesso! 🌟")
 
+def edit_quote():
+    """Permite editar a frase atual exibida na tela."""
+    global current_quote_id
+    if current_quote_id is None:
+        messagebox.showwarning("Aviso", "Não há frase selecionada para editar.")
+        return
+
+    new_text = simpledialog.askstring("Editar Frase", "Edite a frase:", initialvalue=quote_label.cget("text"))
+    if new_text:
+        conn = sqlite3.connect("quotes.db")
+        cursor = conn.cursor()
+        cursor.execute("UPDATE quotes SET text = ? WHERE id = ?", (new_text, current_quote_id))
+        conn.commit()
+        conn.close()
+        quote_label.config(text=new_text)
+        messagebox.showinfo("Sucesso", "Frase atualizada com sucesso! ✏️")
+
 # ------------------------------
 # Interface
 # ------------------------------
 def update_quote():
-    quote_label.config(text=get_random_quote())
+    global current_quote_id
+    current_quote_id, text = get_random_quote()
+    quote_label.config(text=text)
 
 def toggle_theme():
     """Alterna entre tema claro e escuro."""
@@ -55,19 +74,19 @@ def apply_theme():
     """Aplica as cores de acordo com o modo atual."""
     if dark_mode:
         colors = {
-            "bg": "#000000",
+            "bg": "#1e1e1e",
             "text": "#f1f1f1",
-            "button_bg": "#000000",
+            "button_bg": "#3a3a3a",
             "button_hover": "#555",
-            "quote_bg": "#000000",
+            "quote_bg": "#2b2b2b",
         }
         theme_button.config(text="☀️ Tema Claro")
     else:
         colors = {
             "bg": "#f7f6f3",
             "text": "#333",
-            "button_bg": "#ffa600",
-            "button_hover": "#ffa600",
+            "button_bg": "#ffcc66",
+            "button_hover": "#ffd27f",
             "quote_bg": "white",
         }
         theme_button.config(text="🌙 Tema Escuro")
@@ -78,14 +97,14 @@ def apply_theme():
     footer.config(bg=colors["bg"], fg=colors["text"])
     button_frame.config(bg=colors["bg"])
 
-    for b in [add_button, next_button, theme_button]:
+    for b in [add_button, edit_button, next_button, theme_button]:
         b.config(bg=colors["button_bg"], fg=colors["text"], activebackground=colors["button_hover"])
 
 def on_enter(e):
     e.widget.config(bg="#ffd27f")
 
 def on_leave(e):
-    apply_theme()  # volta à cor correta conforme o modo
+    apply_theme()
 
 # ------------------------------
 # Janela Principal
@@ -93,10 +112,11 @@ def on_leave(e):
 create_db()
 root = tk.Tk()
 root.title("💫 Frases Motivacionais do Dia 💫")
-root.geometry("600x420")
+root.geometry("600x440")
 root.eval('tk::PlaceWindow . center')
 
-dark_mode = False  # tema começa claro
+dark_mode = False
+current_quote_id, initial_text = get_random_quote()
 
 # ------------------------------
 # Elementos da Tela
@@ -106,7 +126,7 @@ title_label.pack(pady=20)
 
 quote_label = tk.Label(
     root,
-    text=get_random_quote(),
+    text=initial_text,
     wraplength=500,
     justify="center",
     font=("Georgia", 16, "italic"),
@@ -120,18 +140,18 @@ quote_label.pack(pady=20)
 button_frame = tk.Frame(root)
 button_frame.pack(pady=10)
 
-add_button = tk.Button(button_frame, text="➕ Adicionar Frase", command=add_quote, font=("Arial", 12, "bold"), padx=20, pady=8, cursor="hand2")
-next_button = tk.Button(button_frame, text="🔄 Nova Frase", command=update_quote, font=("Arial", 12, "bold"), padx=20, pady=8, cursor="hand2")
-theme_button = tk.Button(button_frame, text="🌙 Tema Escuro", command=toggle_theme, font=("Arial", 12, "bold"), padx=20, pady=8, cursor="hand2")
+add_button = tk.Button(button_frame, text="➕ Adicionar", command=add_quote, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
+edit_button = tk.Button(button_frame, text="✏️ Editar", command=edit_quote, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
+next_button = tk.Button(button_frame, text="🔄 Nova", command=update_quote, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
+theme_button = tk.Button(button_frame, text="🌙 Tema Escuro", command=toggle_theme, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
 
 add_button.pack(side="left", padx=8)
+edit_button.pack(side="left", padx=8)
 next_button.pack(side="left", padx=8)
 theme_button.pack(side="left", padx=8)
 
 footer = tk.Label(root, text="✨ Desenvolvido por Nicoly Freitas Oliveira ✨", font=("Arial", 10))
 footer.pack(side="bottom", pady=10)
 
-# Aplica o tema inicial
 apply_theme()
-
 root.mainloop()
