@@ -176,19 +176,32 @@ quote_label = tk.Label(
 )
 quote_label.pack(pady=20)
 
-button_frame = tk.Frame(root)
-button_frame.pack(pady=10)
+top_frame = tk.Frame(root, bg=root["bg"])
+top_frame.pack(fill="x", pady=(10, 0))
+
+theme_button = tk.Button(
+    top_frame,
+    text="🌙 Tema Escuro",
+    command=toggle_theme,
+    font=("Arial", 11, "bold"),
+    padx=10,
+    pady=5,
+    cursor="hand2"
+)
+theme_button.pack(side="right", padx=15)
+
+# 🆕 Frame principal para os botões centrais
+button_frame = tk.Frame(root, bg=root["bg"])
+button_frame.pack(pady=20)
 
 add_button = tk.Button(button_frame, text="➕ Adicionar", command=add_quote, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
 edit_button = tk.Button(button_frame, text="✏️ Editar", command=edit_quote, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
 next_button = tk.Button(button_frame, text="🔄 Nova", command=update_quote, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
-theme_button = tk.Button(button_frame, text="🌙 Tema Escuro", command=toggle_theme, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
-history_button = tk.Button(button_frame, text="📜 Histórico", command=show_history, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")  # 🆕 novo botão
+history_button = tk.Button(button_frame, text="📜 Histórico", command=show_history, font=("Arial", 12, "bold"), padx=15, pady=8, cursor="hand2")
 
 add_button.pack(side="left", padx=8)
 edit_button.pack(side="left", padx=8)
 next_button.pack(side="left", padx=8)
-theme_button.pack(side="left", padx=8)
 history_button.pack(side="left", padx=8)
 
 footer = tk.Label(root, text="✨ Desenvolvido por Nicoly Freitas Oliveira ✨", font=("Arial", 10))
