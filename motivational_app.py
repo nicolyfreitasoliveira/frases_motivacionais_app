@@ -55,19 +55,19 @@ def apply_theme():
     """Aplica as cores de acordo com o modo atual."""
     if dark_mode:
         colors = {
-            "bg": "#1e1e1e",
+            "bg": "#000000",
             "text": "#f1f1f1",
-            "button_bg": "#3a3a3a",
+            "button_bg": "#000000",
             "button_hover": "#555",
-            "quote_bg": "#2b2b2b",
+            "quote_bg": "#000000",
         }
         theme_button.config(text="☀️ Tema Claro")
     else:
         colors = {
             "bg": "#f7f6f3",
             "text": "#333",
-            "button_bg": "#ffcc66",
-            "button_hover": "#ffd27f",
+            "button_bg": "#ffa600",
+            "button_hover": "#ffa600",
             "quote_bg": "white",
         }
         theme_button.config(text="🌙 Tema Escuro")
