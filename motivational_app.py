@@ -3,8 +3,9 @@ from tkinter import messagebox, simpledialog
 import sqlite3
 import random
 
-# Funções do Banco de Dados
-
+# ------------------------------
+# Banco de Dados
+# ------------------------------
 def create_db():
     conn = sqlite3.connect("quotes.db")
     cursor = conn.cursor()
@@ -38,30 +39,69 @@ def add_quote():
         conn.close()
         messagebox.showinfo("Sucesso", "Frase adicionada com sucesso! 🌟")
 
-# Funções da Interface
+# ------------------------------
+# Interface
+# ------------------------------
 def update_quote():
     quote_label.config(text=get_random_quote())
 
-# Configuração da Janela Principal
+def toggle_theme():
+    """Alterna entre tema claro e escuro."""
+    global dark_mode
+    dark_mode = not dark_mode
+    apply_theme()
 
+def apply_theme():
+    """Aplica as cores de acordo com o modo atual."""
+    if dark_mode:
+        colors = {
+            "bg": "#1e1e1e",
+            "text": "#f1f1f1",
+            "button_bg": "#3a3a3a",
+            "button_hover": "#555",
+            "quote_bg": "#2b2b2b",
+        }
+        theme_button.config(text="☀️ Tema Claro")
+    else:
+        colors = {
+            "bg": "#f7f6f3",
+            "text": "#333",
+            "button_bg": "#ffcc66",
+            "button_hover": "#ffd27f",
+            "quote_bg": "white",
+        }
+        theme_button.config(text="🌙 Tema Escuro")
+
+    root.configure(bg=colors["bg"])
+    title_label.config(bg=colors["bg"], fg=colors["text"])
+    quote_label.config(bg=colors["quote_bg"], fg=colors["text"])
+    footer.config(bg=colors["bg"], fg=colors["text"])
+    button_frame.config(bg=colors["bg"])
+
+    for b in [add_button, next_button, theme_button]:
+        b.config(bg=colors["button_bg"], fg=colors["text"], activebackground=colors["button_hover"])
+
+def on_enter(e):
+    e.widget.config(bg="#ffd27f")
+
+def on_leave(e):
+    apply_theme()  # volta à cor correta conforme o modo
+
+# ------------------------------
+# Janela Principal
+# ------------------------------
 create_db()
 root = tk.Tk()
-root.title(" Frases Motivacionais do Dia ")
-root.geometry("600x400")
-root.configure(bg="#f7f6f3")
-
-# Centralizar na tela
+root.title("💫 Frases Motivacionais do Dia 💫")
+root.geometry("600x420")
 root.eval('tk::PlaceWindow . center')
 
-# Estilo e Layout
+dark_mode = False  # tema começa claro
 
-title_label = tk.Label(
-    root,
-    text="💫 Inspire-se!",
-    font=("Arial Rounded MT Bold", 22, "bold"),
-    bg="#f7f6f3",
-    fg="#333"
-)
+# ------------------------------
+# Elementos da Tela
+# ------------------------------
+title_label = tk.Label(root, text="✨ Inspire-se!", font=("Arial Rounded MT Bold", 22, "bold"))
 title_label.pack(pady=20)
 
 quote_label = tk.Label(
@@ -70,8 +110,6 @@ quote_label = tk.Label(
     wraplength=500,
     justify="center",
     font=("Georgia", 16, "italic"),
-    bg="white",
-    fg="#555",
     relief="groove",
     bd=3,
     padx=20,
@@ -79,59 +117,21 @@ quote_label = tk.Label(
 )
 quote_label.pack(pady=20)
 
-# Botões
-
-button_frame = tk.Frame(root, bg="#f7f6f3")
+button_frame = tk.Frame(root)
 button_frame.pack(pady=10)
 
-def on_enter(e):  # Efeito hover
-    e.widget.config(bg="#ffd27f")
+add_button = tk.Button(button_frame, text="➕ Adicionar Frase", command=add_quote, font=("Arial", 12, "bold"), padx=20, pady=8, cursor="hand2")
+next_button = tk.Button(button_frame, text="🔄 Nova Frase", command=update_quote, font=("Arial", 12, "bold"), padx=20, pady=8, cursor="hand2")
+theme_button = tk.Button(button_frame, text="🌙 Tema Escuro", command=toggle_theme, font=("Arial", 12, "bold"), padx=20, pady=8, cursor="hand2")
 
-def on_leave(e):
-    e.widget.config(bg="#ffcc66")
+add_button.pack(side="left", padx=8)
+next_button.pack(side="left", padx=8)
+theme_button.pack(side="left", padx=8)
 
-add_button = tk.Button(
-    button_frame,
-    text="➕ Adicionar Frase",
-    command=add_quote,
-    bg="#ffcc66",
-    fg="#333",
-    font=("Arial", 12, "bold"),
-    relief="raised",
-    padx=20,
-    pady=8,
-    borderwidth=3,
-    cursor="hand2"
-)
-add_button.bind("<Enter>", on_enter)
-add_button.bind("<Leave>", on_leave)
-add_button.pack(side="left", padx=10)
-
-next_button = tk.Button(
-    button_frame,
-    text="🔄 Nova Frase",
-    command=update_quote,
-    bg="#b0e0a8",
-    fg="#333",
-    font=("Arial", 12, "bold"),
-    relief="raised",
-    padx=20,
-    pady=8,
-    borderwidth=3,
-    cursor="hand2"
-)
-next_button.pack(side="left", padx=10)
-
-# Rodapé
-footer = tk.Label(
-    root,
-    text="✨ Desenvolvido por Nicoly Oliveira ✨",
-    bg="#f7f6f3",
-    fg="#777",
-    font=("Arial", 10)
-)
+footer = tk.Label(root, text="✨ Desenvolvido por Nicoly Freitas Oliveira ✨", font=("Arial", 10))
 footer.pack(side="bottom", pady=10)
 
-# Iniciar o App
+# Aplica o tema inicial
+apply_theme()
 
 root.mainloop()
